@@ -1,0 +1,13 @@
+{
+  "network": "192.168.1.0/24",
+  "gateway": {
+    "ip": "192.168.1.1",
+    "role": "路由器 / 网关（HUAWEI）",
+    "mac": "e8:d7:65:c9:41:4e",
+    "ports": ["53/dns", "80/http", "443/https"]
+  },
+  "hosts": [
+    {"ip": "192.168.1.21", "role": "二级 AP / 接入设备", "ports": ["80/http"]},
+    {"ip": "192.168.1.31", "role": "本机 MacBook Air", "ports": ["22/ssh", "3306/mysql", "5000/upnp"]}
+  ]
+}
