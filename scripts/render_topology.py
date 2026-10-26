@@ -34,19 +34,28 @@ def main():
     out = sys.argv[2]
     W, H = 1400, 860
     gw = data["gateway"]; hosts = data.get("hosts", [])
+    gw_role = str(gw.get("role","网关"))
+    if len(gw_role) > 22:
+        gw_role = gw_role.replace("（", "\n")
     # 布局：接入点 -> 网关 -> 终端
     net_x, net_y, net_w, net_h = 60, 330, 250, 120
-    gw_x, gw_y, gw_w, gw_h = 430, 320, 300, 150
+    gw_x, gw_y, gw_w, gw_h = 430, 300, 340, 170
     hx0, hy0, hw, hh, gap = 880, 150, 380, 130, 90
     parts = []
     parts.append(f'<rect width="{W}" height="{H}" fill="#020617"/>')
-    parts.append(f'<text x="60" y="70" font-size="26" font-weight="700" fill="#e2e8f0">家庭网络拓扑</text>')
+    title = data.get("title") or "网络拓扑"
+    parts.append(f'<text x="60" y="70" font-size="26" font-weight="700" fill="#e2e8f0">{esc(title)}</text>')
     parts.append(f'<text x="60" y="100" font-size="14" fill="#64748b">{esc(data.get("network",""))} · StarMap 资产星图数据 · nmap 实测端口</text>')
     # 云/互联网
     parts.append(node(net_x, net_y, net_w, net_h, "互联网 / ISP", "WAN 侧", [], "#64748b", "#475569"))
     # 网关
     ports = gw.get("ports", [])
-    parts.append(node(gw_x, gw_y, gw_w, gw_h, gw["ip"], gw.get("role","网关"), ports, "#f59e0b", "#f59e0b"))
+    role_lines = gw_role.split("\n")
+    if len(role_lines) == 2:
+        parts.append(node(gw_x, gw_y, gw_w, gw_h, gw["ip"], role_lines[0], ports, "#f59e0b", "#f59e0b"))
+        parts.append(f'<text x="{gw_x+18}" y="{gw_y+64}" font-size="12" fill="#94a3b8">{esc(role_lines[1])}</text>')
+    else:
+        parts.append(node(gw_x, gw_y, gw_w, gw_h, gw["ip"], gw_role, ports, "#f59e0b", "#f59e0b"))
     if gw.get("mac"):
         parts.append(f'<text x="{gw_x+18}" y="{gw_y+gw_h-14}" font-size="11" fill="#8a6d3b">{esc(gw["mac"])}</text>')
     # 主机
