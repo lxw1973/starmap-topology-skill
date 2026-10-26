@@ -118,6 +118,24 @@ python3 scripts/render_topology.py assets/topology.json /tmp/topology.html
   --window-size=1400,860 file:///tmp/topology.html
 ```
 
+### 多网段 / 大拓扑（推荐）
+
+单网段用 `render_topology.py`；**多网段或主机数 > 6** 时用 `render_network.py`，支持分层布局（互联网 → 核心路由 → 各网段 → 主机网格）、端口列、风险标签：
+
+```bash
+python3 scripts/render_network.py assets/office-network.json /tmp/net.html
+"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+  --headless=new --disable-gpu --no-sandbox --user-data-dir=/tmp/chrome-prof \
+  --screenshot=assets/network.png --window-size=1640,1120 file:///tmp/net.html
+```
+
+数据格式要点：`core` + `segments[]`（每段有 `gateway` 和 `hosts[]`），每台主机可带 `name / role / ports / kind / tags`，
+`kind` 取 `router|server|pc|printer|device|mac` 决定配色，`tags`（如 `telnet`、`vnc`、`mssql`）会渲染成红色风险徽标。
+
+> 跨网段发现：不同 /24 之间不走 ARP，用 `nmap -sn -PS22,23,80,443,3389,8080,1900` 做 TCP 存活发现，
+> 再用 `nmap -sT -Pn -p 22,23,80,443,445,139,3389,8080,8000,1900,3306 -T4 --open <cidr>` 端口扫描补漏（能捞出只开端口不回 ping 的设备）。
+> 主机名/系统版本可用 `nmap -sT -Pn -p445 --script smb-os-discovery` 补齐（对 Windows 很有效）。
+
 **要 StarMap 自己的星图界面**（3D 星图，需要 WebGL）：用 CDP 驱动 headless Chrome 登录后截图，
 必须加 `--use-gl=angle --use-angle=swiftshader --enable-unsafe-swiftshader`，否则报
 `Error creating WebGL context`。参考 `scripts/starmap_api.py` 的 `shot_ui()`。
